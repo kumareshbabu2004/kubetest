@@ -1,10 +1,9 @@
 
 
 image:
-  repository: kumaresh11/uplift-qa
+  repository: kumaresh11/kubetest
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: myapp
+  tag: kube
 imagePullSecrets:
   - name: docker-secret
 php:
