@@ -49,7 +49,7 @@ spec:
               name: mysql-data
 
         - name: php
-          image: {{ .Values.php.image }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           command: ["sh", "-c"]
           args:
             - docker-php-ext-install mysqli && php-fpm
@@ -67,4 +67,3 @@ spec:
             - mountPath: /etc/nginx/conf.d/default.conf
               subPath: default.conf
               name: nginx-conf
-
