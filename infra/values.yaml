@@ -1,5 +1,14 @@
+
+
+image:
+  repository: kumaresh11/uplift-qa
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: myapp
+imagePullSecrets:
+  - name: docker-secret
 php:
-  image: php:8.1-fpm-bullseye
+    image: php:8.1-fpm-bullseye
 
 mysql:
   rootPassword: my-secret-pw
