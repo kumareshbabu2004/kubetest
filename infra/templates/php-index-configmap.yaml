@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: php-index
+data:
+  index.php: |
+    <?php
+    $mysqli = new mysqli("127.0.0.1", "root", "my-secret-pw", "testdb");
+    if ($mysqli->connect_error) {
+      die("Connection failed: " . $mysqli->connect_error);
+    }
+    echo "WELCOME hiiiiiiii bye  TO MySQL";
+    ?>
+
