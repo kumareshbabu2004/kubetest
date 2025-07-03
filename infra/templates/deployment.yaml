@@ -49,7 +49,7 @@ spec:
               name: mysql-data
 
         - name: php
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: php:8.1-fpm
           command: ["sh", "-c"]
           args:
             - docker-php-ext-install mysqli && php-fpm
