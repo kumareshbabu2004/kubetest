@@ -49,10 +49,11 @@ spec:
               name: mysql-data
 
         - name: php
-          image: php:8.1-fpm
+          image: php:8.1-fpm-bullseye
           command: ["sh", "-c"]
           args:
-            - docker-php-ext-install mysqli && php-fpm
+            - apt-get update && apt-get install -y libmysqli-dev default-mysql-client \
+              && docker-php-ext-install mysqli && php-fpm
           volumeMounts:
             - mountPath: /var/www/html
               name: shared-data
