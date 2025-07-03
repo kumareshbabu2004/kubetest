@@ -9,6 +9,6 @@ data:
     if ($mysqli->connect_error) {
       die("Connection failed: " . $mysqli->connect_error);
     }
-    echo "WELCOME hiiiiiiii bye  TO MySQL";
+    echo "WELCOME TO MySQL";
     ?>
 
