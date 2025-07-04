@@ -1,0 +1,97 @@
+pipeline {
+    agent any
+
+    environment {
+        GIT_REPO = 'https://github.com/kumareshbabu2004/kubetest.git'
+        GIT_CREDENTIALS_ID = 'github-token'
+        IMAGE_NAME = 'kumaresh11/tesing'
+        CHART_NAME = './infra'
+        RELEASE_NAME = 'testing-php'
+        VALUES_FILE = './infra/values.yaml'
+        KUBECONFIG_PATH = '/var/jenkins_home/minikube-config/config'
+        ROLLBACK_FILE = './infra/rollback.txt'
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: "${env.GIT_REPO}", credentialsId: "${env.GIT_CREDENTIALS_ID}"
+            }
+        }
+
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    env.IMAGE_TAG = "build-${env.BUILD_ID}"
+                    sh "docker build -t ${IMAGE_NAME}:${env.IMAGE_TAG} ."
+
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh """
+                            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                            docker push ${IMAGE_NAME}:${env.IMAGE_TAG}
+                        """
+                    }
+                    echo "Image pushed: ${IMAGE_NAME}:${env.IMAGE_TAG}"
+                }
+            }
+        }
+
+        stage('Deploy Current Image via Helm') {
+            steps {
+                script {
+                    echo "Deploying ${IMAGE_NAME}:${env.IMAGE_TAG} to Kubernetes..."
+                    sh """
+                        helm upgrade --install ${RELEASE_NAME} ${CHART_NAME} \
+                          --kubeconfig=${KUBECONFIG_PATH} \
+                          --set php.image.repository=${IMAGE_NAME} \
+                          --set php.image.tag=${env.IMAGE_TAG} \
+                          -f ${VALUES_FILE} \
+                          --namespace default
+                    """
+                }
+            }
+        }
+
+        stage('Ask for Rollback') {
+            steps {
+                script {
+                    def choice = input message: 'Do you want to rollback?', parameters: [
+                        choice(name: 'rollback', choices: ['no', 'rollback'], description: 'Select rollback option')
+                    ]
+
+                    if (choice == 'rollback') {
+                        if (!fileExists(env.ROLLBACK_FILE)) {
+                            error "Rollback failed: rollback.txt not found!"
+                        }
+
+                        def previousTag = readFile(env.ROLLBACK_FILE).trim()
+                        echo "Rolling back to: ${IMAGE_NAME}:${previousTag}"
+
+                        sh """
+                            helm upgrade --install ${RELEASE_NAME} ${CHART_NAME} \
+                              --kubeconfig=${KUBECONFIG_PATH} \
+                              --set php.image.repository=${IMAGE_NAME} \
+                              --set php.image.tag=${previousTag} \
+                              -f ${VALUES_FILE} \
+                              --namespace default
+                        """
+                    } else {
+                        echo "No rollback selected. Keeping current deployment."
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                writeFile file: env.ROLLBACK_FILE, text: env.IMAGE_TAG
+                echo "rollback.txt updated with latest tag: ${env.IMAGE_TAG}"
+            }
+        }
+        failure {
+            echo "Pipeline failed. No rollback version saved."
+        }
+    }
+}
