@@ -49,11 +49,12 @@ spec:
               name: mysql-data
 
         - name: php
-          image: {{ .Values.php.image }}
-          command: ["sh", "-c"]
+          image:  {{ .Values.php.image }}
+          command: ["bash", "-c"]
           args:
             - >-
               apt-get update &&
+              apt-get install -y libzip-dev libpng-dev libonig-dev libxml2-dev zip unzip git curl &&
               apt-get install -y libmysqli-dev default-mysql-client &&
               docker-php-ext-install mysqli &&
               php-fpm
