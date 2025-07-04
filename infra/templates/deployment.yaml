@@ -49,21 +49,16 @@ spec:
               name: mysql-data
 
         - name: php
-          image:  {{ .Values.php.image }}
-          command: ["bash", "-c"]
+          image: {{ .Values.php.image }}
+          command: ["sh", "-c"]
           args:
-            - >-
-              apt-get update &&
-              apt-get install -y libzip-dev libpng-dev libonig-dev libxml2-dev zip unzip git curl &&
-              apt-get install -y libmysqli-dev default-mysql-client &&
-              docker-php-ext-install mysqli &&
-              php-fpm
+            - docker-php-ext-install mysqli && php-fpm
           volumeMounts:
             - mountPath: /var/www/html
               name: shared-data
 
         - name: nginx
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: nginx:alpine
           ports:
             - containerPort: 80
           volumeMounts:
@@ -72,3 +67,4 @@ spec:
             - mountPath: /etc/nginx/conf.d/default.conf
               subPath: default.conf
               name: nginx-conf
+
