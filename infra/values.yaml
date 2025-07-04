@@ -1,8 +1,7 @@
 php:
-  image: php:8.1-fpm-bullseye
-image:
-  repository: kumaresh11/kubetestd
-  tag: kube
+  image:
+    repository: php
+    tag: 8.1-fpm-bullseye
 
 mysql:
   rootPassword: my-secret-pw
@@ -22,6 +21,7 @@ ingress:
         - path: /
           pathType: Prefix
   tls: []
+
 resources:
   requests:
     cpu: 100m
@@ -36,5 +36,3 @@ autoscaling:
   maxReplicas: 5
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 90
-
-
