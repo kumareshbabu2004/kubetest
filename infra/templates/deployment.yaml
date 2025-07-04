@@ -49,11 +49,14 @@ spec:
               name: mysql-data
 
         - name: php
-          image:  {{ .Values.php.image }}
+          image: {{ .Values.php.image }}
           command: ["sh", "-c"]
           args:
-            - apt-get update && apt-get install -y libmysqli-dev default-mysql-client \
-              && docker-php-ext-install mysqli && php-fpm
+            - >-
+              apt-get update &&
+              apt-get install -y libmysqli-dev default-mysql-client &&
+              docker-php-ext-install mysqli &&
+              php-fpm
           volumeMounts:
             - mountPath: /var/www/html
               name: shared-data
