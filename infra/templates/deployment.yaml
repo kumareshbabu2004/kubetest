@@ -49,7 +49,7 @@ spec:
               name: mysql-data
 
         - name: php
-          image: php:8.1-fpm-bullseye
+          image:  {{ .Values.php.image }}
           command: ["sh", "-c"]
           args:
             - apt-get update && apt-get install -y libmysqli-dev default-mysql-client \

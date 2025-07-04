@@ -6,7 +6,8 @@ image:
   tag: kube
 imagePullSecrets:
   - name: docker-secret
-
+php:
+    image: php:8.1-fpm-bullseye
 
 mysql:
   rootPassword: my-secret-pw
